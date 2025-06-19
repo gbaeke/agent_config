@@ -1,10 +1,17 @@
 import json
 import os
+from typing import Coroutine
 import redis
 from pathlib import Path
 import jsonschema
-from agents import Agent
+from agents import Agent, AgentHooks, RunContextWrapper
 from tools import all_tools
+
+
+class MyAgentHooks(AgentHooks):
+    def on_start(self, context, agent):
+        print(f"\033[92mIn agent {agent.name}\033[0m")
+        return super().on_start(context, agent)
 
 
 def _load_agent_schema() -> dict:
@@ -201,7 +208,8 @@ def create_agent_from_config(agent_name: str, agents_as_tools: dict = {}) -> Age
             name=name,
             instructions=instructions,
             model=model,
-            tools=tool_list
+            tools=tool_list,
+            hooks=MyAgentHooks()
         )
     except Exception as e:
         raise ValueError(f"Failed to create agent '{agent_name}': {e}") 

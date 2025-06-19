@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import asyncio
-from agents import Runner, TResponseInputItem
+from agents import Agent, RunContextWrapper, Runner, TResponseInputItem, trace, RunHooks
 from agent_factory import create_agent_from_config
 
 # loads the .env file (if you have a global environment variable, you can skip this)
@@ -11,6 +11,13 @@ api_key = os.environ.get("OPENAI_API_KEY")
 
 if not api_key:
     raise ValueError("OPENAI_API_KEY is not set in the environment variables")
+
+
+# create run hooks class
+class MyRunHooks(RunHooks):
+    def on_tool_start(self, context, agent, tool):
+        print(f"\033[92mTool {tool.name} called\033[0m")
+        return super().on_tool_start(context, agent, tool)
 
 
 # Create agents from configuration
@@ -24,7 +31,7 @@ agent_array = {
     "weather": {
         "agent": weather_agent,
         "name": "weather",
-        "description": "Get weather information based on the user's question: you can do current weather, temperature, and 7 day forecast"
+        "description": "Get weather information based on the user's question: you can do current current weather, temperature, and 7 day forecast"
     },
     "news": {
         "agent": news_agent,
@@ -42,23 +49,24 @@ conversation_agent = create_agent_from_config("conversation", agent_array)
 
 
 async def chat():
-    convo: list[TResponseInputItem] = []
-    print("You are now chatting with the conversation agent. Type 'exit' to end the conversation.")
-    
-    while True:
-        user_input = input("You: ")
+    with trace("conversation"):
+        convo: list[TResponseInputItem] = []
+        print("You are now chatting with the conversation agent. Type 'exit' to end the conversation.")
+        
+        while True:
+            user_input = input("You: ")
 
-        if user_input == "exit":
-            print("Goodbye!")
-            break
+            if user_input == "exit":
+                print("Goodbye!")
+                break
 
-        convo.append({"content": user_input, "role": "user"})
-        result = await Runner.run(conversation_agent, convo)
+            convo.append({"content": user_input, "role": "user"})
+            result = await Runner.run(conversation_agent, convo, hooks=MyRunHooks())
 
-        # Extract and display all responses in order
-        print("Agent: ", result.final_output)
+            # Extract and display all responses in order
+            print("Agent: ", result.final_output)
 
-        convo = result.to_input_list()
+            convo = result.to_input_list()
 
 
 # Run the chat interface
