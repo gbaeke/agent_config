@@ -16,7 +16,7 @@ if not api_key:
 # create run hooks class
 class MyRunHooks(RunHooks):
     def on_tool_start(self, context, agent, tool):
-        print(f"\033[92mTool {tool.name} called\033[0m")
+        print(f"\033[92mTool {tool.name} called from {agent.name}\033[0m")
         return super().on_tool_start(context, agent, tool)
 
 
@@ -31,12 +31,12 @@ agent_array = {
     "weather": {
         "agent": weather_agent,
         "name": "weather",
-        "description": "Get weather information based on the user's question: you can do current current weather, temperature, and 7 day forecast"
+        "description": "Get weather information based on the user's full question"
     },
     "news": {
         "agent": news_agent,
         "name": "news",
-        "description": "Get news information based on the user's question: you can do web search"
+        "description": "Get news information based on the user's full question"
     }
 }
 
@@ -61,7 +61,7 @@ async def chat():
                 break
 
             convo.append({"content": user_input, "role": "user"})
-            result = await Runner.run(conversation_agent, convo, hooks=MyRunHooks())
+            result = await Runner.run(conversation_agent, convo)
 
             # Extract and display all responses in order
             print("Agent: ", result.final_output)

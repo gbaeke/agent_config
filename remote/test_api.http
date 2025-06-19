@@ -1,0 +1,154 @@
+### Standalone Agent API Tests
+### Make sure to start the server first: python standalone_agent.py
+
+@baseUrl = http://localhost:8000
+
+### 1. Get API information
+GET {{baseUrl}}/
+
+###
+
+### 2. Health check
+GET {{baseUrl}}/health
+
+###
+
+### 3. Basic square root calculation
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "What is the square root of 25?"
+}
+
+###
+
+### 4. Square root with sqrt keyword
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "Calculate sqrt of 16"
+}
+
+###
+
+### 5. Square root with mathematical symbol
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "Find √36"
+}
+
+###
+
+### 6. Square root of decimal number
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "What is the square root of 2.25?"
+}
+
+###
+
+### 7. Square root of larger number
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "Calculate the square root of 144"
+}
+
+###
+
+### 8. Square root with "root of" phrasing
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "Find the root of 100"
+}
+
+###
+
+### 9. Test negative number (should return error)
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "What is the square root of -25?"
+}
+
+###
+
+### 10. Query without number (should ask for number)
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "Calculate square root"
+}
+
+###
+
+### 11. Non-square root query (should provide helpful message)
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "What is 2 + 2?"
+}
+
+###
+
+### 12. Empty query (should return 400 error)
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": ""
+}
+
+###
+
+### 13. Square root of zero
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "What is the square root of 0?"
+}
+
+###
+
+### 14. Square root of 1
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "Calculate sqrt of 1"
+}
+
+###
+
+### 15. Square root with multiple numbers (should use first one)
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "What is the square root of 25 and 36?"
+}
+
+###
+
+### 16. Complex query with square root
+POST {{baseUrl}}/run
+Content-Type: application/json
+
+{
+    "query": "I need to find the square root of 81 for my math homework"
+}
+
+### 

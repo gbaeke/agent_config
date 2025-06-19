@@ -12,6 +12,10 @@ class MyAgentHooks(AgentHooks):
     def on_start(self, context, agent):
         print(f"\033[92mIn agent {agent.name}\033[0m")
         return super().on_start(context, agent)
+    
+    def on_tool_start(self, context, agent, tool):
+        print(f"\033[92mTool {tool.name} called from {agent.name}\033[0m")
+        return super().on_tool_start(context, agent, tool)
 
 
 def _load_agent_schema() -> dict:

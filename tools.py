@@ -1,5 +1,6 @@
 from agents import function_tool, WebSearchTool
 from datetime import datetime
+import requests
 
 @function_tool
 def get_current_weather(city: str) -> str:
@@ -20,6 +21,25 @@ def get_current_date() -> str:
 def get_current_temperature() -> str:
     """Get the current temperature."""
     return "The current temperature is 72°F."
+
+# tool that uses the remote agent as a tool
+# this is the same as agent as tool approach but instead you create an actual tool that calls the remote agent
+# difference in tracing though - by default a trace for the conversation agent and separate trace each
+# tool call (by default)
+@function_tool
+def calculator(query: str) -> str:
+    """Use the calculator agent to answer the question."""
+    
+    response = requests.post(
+        "http://localhost:8000/run",
+        json={"query": query},
+        headers={"Content-Type": "application/json"}
+    )
+    
+    if response.status_code == 200:
+        return response.json()["result"]
+    else:
+        return f"Error calling calculator agent: {response.status_code}"
 
 @function_tool
 def get_seven_day_forecast() -> str:
@@ -46,5 +66,6 @@ all_tools = {
     "get_current_temperature": get_current_temperature,
     "get_seven_day_forecast": get_seven_day_forecast,
     "get_current_date": get_current_date,
-    "web_search": WebSearchTool() # requires WebSearchTool import
+    "web_search": WebSearchTool(), # requires WebSearchTool import
+    "calculator": calculator
 } 
