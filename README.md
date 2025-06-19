@@ -2,6 +2,52 @@
 
 A flexible Python framework for creating configurable AI agents that can work together as tools. This project allows you to define specialized agents (like weather and news agents) and combine them into a conversation agent that can intelligently route queries to the appropriate specialist agent.
 
+## Architecture Overview
+
+```mermaid
+graph TD
+    A["User Input"] --> B["Chat Interface<br/>(agent_from_config.py)"]
+    B --> C["Conversation Agent"]
+    
+    C --> D{"Query Analysis"}
+    D -->|Weather Query| E["Weather Agent"]
+    D -->|News Query| F["News Agent"]
+    D -->|Math Query| G["Calculator Tool"]
+    D -->|General Query| H["Direct Response"]
+    
+    E --> I["Weather API/Service"]
+    F --> J["News API/Service"]
+    G --> K["Remote Calculator Server<br/>(FastAPI on :8000)"]
+    
+    I --> L["Weather Response"]
+    J --> M["News Response"]
+    K --> N["Calculation Response"]
+    
+    L --> O["Final Response"]
+    M --> O
+    N --> O
+    H --> O
+    
+    O --> P["Display to User"]
+    P --> B
+    
+    Q["Agent Factory<br/>(agent_factory.py)"] --> E
+    Q --> F
+    Q --> C
+    
+    R["Configuration Source"] --> Q
+    S["JSON Files<br/>(configs/*.json)"] --> R
+    T["Redis Database"] --> R
+    
+    U["Environment Variables<br/>(.env)"] --> V["USE_REDIS Flag"]
+    V -->|True| T
+    V -->|False| S
+    
+    W["Tools Registry<br/>(tools.py)"] --> Q
+    
+    X["Schema Validation<br/>(agent_config_schema.json)"] --> Q
+```
+
 ## Features
 
 - **Configurable Agents**: Define agents using JSON configuration files
