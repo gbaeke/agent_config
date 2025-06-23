@@ -23,11 +23,11 @@ class MyRunHooks(RunHooks):
 # Create agents from configuration
 weather_agent = create_agent_from_config("weather")
 news_agent = create_agent_from_config("news")
-
+simulator_agent = create_agent_from_config("simulator")
 
 # We want to use the weather agent as a tool in the conversation agent
 # This requires the reference to the agent to be passed in as a tool
-agent_array = {
+agent_as_tools = {
     "weather": {
         "agent": weather_agent,
         "name": "weather",
@@ -40,33 +40,50 @@ agent_array = {
     }
 }
 
+agent_handoffs = [
+    simulator_agent
+]
+
+
 
 
 # Create conversation agent that uses the weather agent as a tool
 # The second argument will add the agents as tools on top of the tools of the 
 # onversation agent itself
-conversation_agent = create_agent_from_config("conversation", agent_array)
+conversation_agent = create_agent_from_config("conversation", agent_as_tools, agent_handoffs)
 
 
 async def chat():
     with trace("conversation"):
+        current_agent = conversation_agent
         convo: list[TResponseInputItem] = []
-        print("You are now chatting with the conversation agent. Type 'exit' to end the conversation.")
+        print(f"You are now chatting with the {current_agent.name}. Type 'exit' to end the conversation.")
         
         while True:
             user_input = input("You: ")
 
             if user_input == "exit":
-                print("Goodbye!")
-                break
+                if current_agent != conversation_agent:
+                    print(f"Going from {current_agent.name} to {conversation_agent.name}")
+                    current_agent = conversation_agent
+                else:
+                    print("Goodbye!")
+                    break
+
+            # allow reset which clears the convo
+            if user_input == "reset":
+                convo = []
+                print("\033[91mConversation reset\033[0m")
+                continue
 
             convo.append({"content": user_input, "role": "user"})
-            result = await Runner.run(conversation_agent, convo)
+            result = await Runner.run(current_agent, convo)
 
             # Extract and display all responses in order
             print("Agent: ", result.final_output)
 
             convo = result.to_input_list()
+            current_agent = result.last_agent
 
 
 # Run the chat interface

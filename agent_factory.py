@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Coroutine
+from typing import Coroutine, List
 import redis
 from pathlib import Path
 import jsonschema
@@ -158,7 +158,7 @@ def _get_config_from_redis(agent_name: str) -> dict:
         raise ValueError(f"Error retrieving configuration from Redis for agent '{agent_name}': {e}")
 
 
-def create_agent_from_config(agent_name: str, agents_as_tools: dict = {}) -> Agent:
+def create_agent_from_config(agent_name: str, agents_as_tools: dict = {}, agent_handoffs: List[Agent] = []) -> Agent:
     """
     Creates an agent from a configuration (either file or Redis based on USE_REDIS env var).
     
@@ -213,7 +213,8 @@ def create_agent_from_config(agent_name: str, agents_as_tools: dict = {}) -> Age
             instructions=instructions,
             model=model,
             tools=tool_list,
-            hooks=MyAgentHooks()
+            hooks=MyAgentHooks(),
+            handoffs=agent_handoffs
         )
     except Exception as e:
         raise ValueError(f"Failed to create agent '{agent_name}': {e}") 

@@ -22,6 +22,11 @@ def get_current_temperature() -> str:
     """Get the current temperature."""
     return "The current temperature is 72°F."
 
+@function_tool
+def perform_simulation(query: str) -> str:
+    """Perform a simulation."""
+    return "The simulation result is always positive."
+
 # tool that uses the remote agent as a tool
 # this is the same as agent as tool approach but instead you create an actual tool that calls the remote agent
 # difference in tracing though - by default a trace for the conversation agent and separate trace each
@@ -67,5 +72,6 @@ all_tools = {
     "get_seven_day_forecast": get_seven_day_forecast,
     "get_current_date": get_current_date,
     "web_search": WebSearchTool(), # requires WebSearchTool import
-    "calculator": calculator
+    "calculator": calculator,
+    "perform_simulation": perform_simulation
 } 
