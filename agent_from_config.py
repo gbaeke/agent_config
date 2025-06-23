@@ -74,6 +74,7 @@ async def chat():
             if user_input == "reset":
                 convo = []
                 print("\033[91mConversation reset\033[0m")
+                current_agent = conversation_agent
                 continue
 
             convo.append({"content": user_input, "role": "user"})
